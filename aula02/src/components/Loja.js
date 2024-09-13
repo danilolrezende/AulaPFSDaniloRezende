@@ -1,16 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext } from 'react';
 import Cabecalho from './Cabecalho';
 import Rodape from './Rodape';
 import LojaSkin from './LojaSkin';
 import Loader from './Loader';
 
+export const CarteiraContext = createContext([0, () => { }, () => { }]);
+
 const Loja = () => {
-    const [estado, setEstado] = useState({ carregando: true, dados: [] });
+    const [estado, setEstado] = useState({ carregando: true, dados: [], carteira: 4000 });
+    const creditar = quantia => {
+        setEstado({ ...estado, carteira: estado.carteira + quantia });
+    };
+
+    const debitar = quantia => {
+        setEstado({ ...estado, carteira: estado.carteira - quantia });
+    };
 
     useEffect(() => {
         if (estado.carregando) {
             setTimeout(() => {
-                setEstado({ carregando: false, dados: objetos });
+                setEstado({ ...estado, carregando: false, dados: objetos });
             }, 2000);
         }
     }, [estado.carregando]);
@@ -22,6 +31,7 @@ const Loja = () => {
     } else {
         componentes = estado.dados.map(x => {
             return (
+
                 <LojaSkin key={x.id}
                     nome={x.nome}
                     imagem={x.imagem}
@@ -32,15 +42,18 @@ const Loja = () => {
     }
 
     return (<>
-        <Cabecalho />
-        <main>
-            <div className="loja">
-                {
-                    componentes
-                }
-            </div>
-        </main>
-        <Rodape />
+        <CarteiraContext.Provider value={{ saldo: estado.carteira, creditar, debitar }}>
+            <Cabecalho />
+            <main>
+                <div className="loja">
+                    {
+                        componentes
+                    }
+                </div>
+            </main>
+            <Rodape />
+        </CarteiraContext.Provider>
+
     </>);
 };
 
