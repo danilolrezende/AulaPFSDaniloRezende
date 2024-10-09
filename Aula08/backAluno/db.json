@@ -1,0 +1,24 @@
+{
+  "alunos": [
+    {
+      "id": "1",
+      "nome": "Alice",
+      "matricula": 12345
+    },
+    {
+      "id": "2",
+      "nome": "Bob",
+      "matricula": 67890
+    },
+    {
+      "id": "3",
+      "nome": "Charlie",
+      "matricula": 11122
+    },
+    {
+      "id": "1",
+      "nome": "Alice",
+      "matricula": 12345
+    }
+  ]
+}
