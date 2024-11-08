@@ -1,7 +1,9 @@
 using System;
+using AtletaApi.Dtos;
 using AtletaApi.Infra;
 using AtletaApi.Models;
 using Aula10;
+using Microsoft.EntityFrameworkCore;
 
 namespace AtletaApi.EndPoints;
 
@@ -11,65 +13,67 @@ public static class AtletaEndPoints
     public static void AdicionarAtletaEndPoints(this WebApplication app)
     {
         var grupo = app.MapGroup("/atletas");
-        grupo.MapGet("/", Get);
-        grupo.MapGet("/{id}", GetById);
-        grupo.MapPost("", Post);
-        grupo.MapPut("/{id}",Put);
-        grupo.MapDelete("/{id}", Delete);
+        grupo.MapGet("/", GetAsync);
+        grupo.MapGet("/{id}", GetByIdAsync);
+        grupo.MapPost("", PostAsync);
+        grupo.MapPut("/{id}", PutAsync);
+        grupo.MapDelete("/{id}", DeleteAsync);
     }
 
-    private static IResult GetById(long id, AtletaContext db)
+    private static async Task<IResult> GetAsync(AtletaContext db)
     {
-        var obj = db.Atletas.Find(id);
+        var objetos = await db.Atletas.ToListAsync();
+        return TypedResults.Ok(objetos.Select(x => new AtletaDTO(x)));
+    }
+
+    private static async Task<IResult> GetByIdAsync(string id, AtletaContext db)
+    {
+        var obj = await db.Atletas.FindAsync(Convert.ToInt64(id));
 
         if (obj == null)
         {
             return TypedResults.NotFound();
         }
-        return TypedResults.Ok(obj);
+        return TypedResults.Ok(new AtletaDTO(obj));
     }
 
-    private static IResult Get(AtletaContext db)
-    {        
-        return TypedResults.Ok(db.Atletas.ToList());
-    }
 
-    private static IResult Post(Atleta obj, AtletaContext db)
+
+    private static async Task<IResult> PostAsync(AtletaDTO dto, AtletaContext db)
     {
+        Atleta obj = dto.GetModel();
         obj.Id = GeradorId.GetId();
-        db.Atletas.Add(obj);
-        db.SaveChanges();
+        await db.Atletas.AddAsync(obj);
+        await db.SaveChangesAsync();
 
-        return TypedResults.Created($"atletas/{obj.Id}", obj);
+        return TypedResults.Created($"atletas/{obj.Id}", new AtletaDTO(obj));
     }
 
-    private static IResult Put(long id, Atleta objNovo, AtletaContext db)
+    private static async Task<IResult> PutAsync(string id, AtletaDTO dto, AtletaContext db)
     {
-        if (id != objNovo.Id)
+        if (id != dto.Id)
         {
             return TypedResults.BadRequest();
         }
 
-        var obj = db.Atletas.Find(id);
+        var obj = await db.Atletas.FindAsync(Convert.ToInt64(id));
 
         if (obj == null)
         {
             return TypedResults.NotFound();
         }
 
-        obj.Nome = objNovo.Nome;
-        obj.Altura = objNovo.Altura;
-        obj.Peso = objNovo.Peso;
+        dto.preencherModel(obj);
 
         db.Atletas.Update(obj);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
 
         return TypedResults.NoContent();
     }
 
-    private static IResult Delete(long id, AtletaContext db)
+    private static async Task<IResult> DeleteAsync(string id, AtletaContext db)
     {
-        var obj = db.Atletas.Find(id);
+        var obj = await db.Atletas.FindAsync(Convert.ToInt64(id));
 
         if (obj == null)
         {
@@ -77,7 +81,7 @@ public static class AtletaEndPoints
         }
 
         db.Atletas.Remove(obj);
-        db.SaveChanges();   
+        await db.SaveChangesAsync();
 
         return TypedResults.NoContent();
     }

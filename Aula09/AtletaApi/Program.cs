@@ -9,6 +9,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AtletaContext>();
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,5 +27,11 @@ app.UseHttpsRedirection();
 app.MapGet("/teste", () => "1, 2, 3, testando..."); */
 
 app.AdicionarAtletaEndPoints();
+
+app.UseCors(builder => builder
+   .AllowAnyOrigin()
+   .AllowAnyMethod()
+   .AllowAnyHeader()
+);
 
 app.Run();
