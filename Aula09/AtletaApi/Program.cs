@@ -1,5 +1,7 @@
 using AtletaApi.EndPoints;
+using AtletaApi.Models;
 using Aula10;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AtletaContext>();
 
 builder.Services.AddCors();
+
+builder.Services.AddSingleton<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 
 var app = builder.Build();
 
@@ -27,6 +31,7 @@ app.UseHttpsRedirection();
 app.MapGet("/teste", () => "1, 2, 3, testando..."); */
 
 app.AdicionarAtletaEndPoints();
+app.AdicionarUsuarioEndPoints();
 
 app.UseCors(builder => builder
    .AllowAnyOrigin()

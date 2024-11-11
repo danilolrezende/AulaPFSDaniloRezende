@@ -7,6 +7,7 @@ namespace Aula10
     public class AtletaContext : DbContext
     {   
         public DbSet<Atleta> Atletas { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
 
         public AtletaContext()
         {
